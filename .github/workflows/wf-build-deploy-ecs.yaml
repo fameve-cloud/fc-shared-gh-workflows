@@ -5,12 +5,15 @@ on:
     inputs:
       BUILD_NAME:
         description: "Build Name"
+        type: string
         required: true
       SERVICE_NAME:
         description: "ECS Service Name"
+        type: string
         required: true
       ECR_REPOSITORY:
         description: "ECR_REPOSITORY"
+        type: string
         required: true
     secrets:
       GOOGLE_PROJECT:
