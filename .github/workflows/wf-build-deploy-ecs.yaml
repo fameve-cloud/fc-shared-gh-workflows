@@ -86,9 +86,9 @@ jobs:
           DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           GOOGLE_PROJECT=${{ secrets.GOOGLE_PROJECT }} ./scripts/deploy.sh
           
-          docker build -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG .
-          docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG"
+          docker build -t $ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG .
+          docker push $ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG"
      
       - run: sed 's/PAT/${{ secrets.FC_GH_ACTIONS }}/g' .terraform/main.tf > .terraform/main-sed.tf
       - run: rm .terraform/main.tf
