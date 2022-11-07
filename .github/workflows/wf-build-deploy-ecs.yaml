@@ -6,12 +6,50 @@ on:
       BUILD_NAME:
         description: "Build Name"
         required: true
-
+      GOOGLE_PROJECT:
+        description: "GCP Project Id"
+        required: true
+      SERVICE_NAME:
+        description: "ECS Service Name"
+        required: true
+      ECR_REPOSITORY:
+        description: "ECR_REPOSITORY"
+        required: true
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        description: "AWS_ACCESS_KEY_ID"
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: "AWS_SECRET_ACCESS_KEY"
+        required: true
+      AWS_REGION:
+        description: "AWS_REGION"
+        required: true
+      DB_HOST:
+        description: "DB_HOST"
+        required: true
+      DB_USER:
+        description: "DB user"
+        required: true
+      DB_PASSWORD:
+        description: "DB Password"
+        required: true
+      FC_GH_ACTIONS:
+        description: "FC_GH_ACTIONS"
+        required: true
+      TF_ORG_TOKEN: 
+        description: "TF_ORG_TOKEN"
+        required: true
+      TF_API_TOKEN:
+        description: "TF_API_TOKEN"
+        required: true
+      GOOGLE_SVC_ACCOUNT:
+        description: "GOOGLE_SVC_ACCOUNT"
+        required: true
 jobs:
   build-deploy:
     name: ${{ inputs.BUILD_NAME }}
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -48,19 +86,10 @@ jobs:
           DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           GOOGLE_PROJECT=${{ secrets.GOOGLE_PROJECT }} ./scripts/deploy.sh
           
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$CONTAINER_NAME$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$CONTAINER_NAME$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$CONTAINER_NAME$IMAGE_TAG"
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
-      
-      
+          docker build -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG .
+          docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG"
+     
       - run: sed 's/PAT/${{ secrets.FC_GH_ACTIONS }}/g' .terraform/main.tf > .terraform/main-sed.tf
       - run: rm .terraform/main.tf
       - name: Setup Terraform
