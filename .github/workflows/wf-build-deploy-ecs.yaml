@@ -6,9 +6,6 @@ on:
       BUILD_NAME:
         description: "Build Name"
         required: true
-      GOOGLE_PROJECT:
-        description: "GCP Project Id"
-        required: true
       SERVICE_NAME:
         description: "ECS Service Name"
         required: true
@@ -16,6 +13,9 @@ on:
         description: "ECR_REPOSITORY"
         required: true
     secrets:
+      GOOGLE_PROJECT:
+        description: "GCP Project Id"
+        required: true
       AWS_ACCESS_KEY_ID:
         description: "AWS_ACCESS_KEY_ID"
         required: true
