@@ -49,6 +49,9 @@ on:
       GOOGLE_SVC_ACCOUNT:
         description: "GOOGLE_SVC_ACCOUNT"
         required: true
+      FC_APPS_REDIS_NODE:
+        description: "FC_APPS_REDIS_NODE"
+        required: true
 jobs:
   build-deploy:
     name: ${{ inputs.BUILD_NAME }}
@@ -87,6 +90,7 @@ jobs:
           DB_HOST=${{ secrets.DB_HOST }} \
           DB_USER=${{ secrets.DB_USER }} \
           DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          REDIS_NODE=${{ secrets.FC_APPS_REDIS_NODE }}
           GOOGLE_PROJECT=${{ secrets.GOOGLE_PROJECT }} ./scripts/deploy.sh
           
           docker build -t $ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG .
