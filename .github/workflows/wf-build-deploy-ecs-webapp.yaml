@@ -65,10 +65,11 @@ jobs:
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          
-          docker build -t $ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG .
-          docker push $ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG"
+          set -x
+          IMAGE_NAME=$ECR_REGISTRY/$ECR_REPOSITORY:$SERVICE_NAME$IMAGE_TAG
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+          echo "::set-output name=image::$IMAGE_NAME"
      
       - run: sed 's/PAT/${{ secrets.FC_GH_ACTIONS }}/g' .terraform/main.tf > .terraform/main-sed.tf
       - run: rm .terraform/main.tf
