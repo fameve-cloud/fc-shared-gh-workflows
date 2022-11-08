@@ -97,7 +97,7 @@ jobs:
           S3_CLOUDFRONT_URL=${{ secrets.S3_CLOUDFRONT_URL }} \
           GOOGLE_PROJECT=${{ secrets.GOOGLE_PROJECT }} ./scripts/deploy.sh
           
-          IMAGE_NAME=$ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:${{ inputs.SERVICE_NAME }}${{ inputs.IMAGE_TAG }}
+          IMAGE_NAME=$ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:${{ inputs.SERVICE_NAME }}$IMAGE_TAG
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
           echo "::set-output name=image::$IMAGE_NAME"

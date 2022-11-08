@@ -66,11 +66,10 @@ jobs:
           # push it to ECR so that it can
           # be deployed to ECS.
           
-          echo "DOCKER_IMAGE=(${{ inputs.ECR_REGISTRY }}/${{ inputs.ECR_REPOSITORY }}:${{ inputs.SERVICE_NAME }}${IMAGE_TAG})" >> $ $GITHUB_ENV
-          
-          echo ${{ env.DOCKER_IMAGE }}
-          docker build -t ${{ env.DOCKER_IMAGE }} .
-          docker push ${{ env.DOCKER_IMAGE }}
+          IMAGE_NAME=$ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:${{ inputs.SERVICE_NAME }}$IMAGE_TAG
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+          echo "::set-output name=image::$IMAGE_NAME"
       - run: sed 's/PAT/${{ secrets.FC_GH_ACTIONS }}/g' .terraform/main.tf > .terraform/main-sed.tf
       - run: rm .terraform/main.tf
       - name: Setup Terraform
@@ -84,7 +83,7 @@ jobs:
         run: terraform -chdir=.terraform init
       - id: plan
         name: Terraform Plan
-        run: TF_VAR_fc_preview_token=${{ secrets.TF_ORG_TOKEN }} TF_VAR_api_image=${{ env.DOCKER_IMAGE }} terraform -chdir=.terraform plan
+        run: TF_VAR_fc_preview_token=${{ secrets.TF_ORG_TOKEN }} TF_VAR_api_image=${{ steps.build-image.outputs.image }} terraform -chdir=.terraform plan
       - id: apply
         name: Terraform Apply
-        run: TF_VAR_fc_preview_token=${{ secrets.TF_ORG_TOKEN }} TF_VAR_api_image=${{ env.DOCKER_IMAGE }}  terraform -chdir=.terraform apply -auto-approve
+        run: TF_VAR_fc_preview_token=${{ secrets.TF_ORG_TOKEN }} TF_VAR_api_image=${{ steps.build-image.outputs.image }}  terraform -chdir=.terraform apply -auto-approve
