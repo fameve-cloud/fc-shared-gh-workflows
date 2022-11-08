@@ -67,6 +67,7 @@ jobs:
           # be deployed to ECS.
           set -x
           IMAGE_NAME=$ECR_REGISTRY/$ECR_REPOSITORY:$SERVICE_NAME$IMAGE_TAG
+          echo $IMAGE_NAME
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
           echo "::set-output name=image::$IMAGE_NAME"
