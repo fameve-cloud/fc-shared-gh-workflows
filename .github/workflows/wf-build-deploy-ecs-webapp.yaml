@@ -65,8 +65,9 @@ jobs:
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          set -x
-          IMAGE_NAME=$ECR_REGISTRY/$ECR_REPOSITORY:$SERVICE_NAME$IMAGE_TAG
+          
+          IMAGE_NAME="${{ inputs.ECR_REGISTRY }}/${{ inputs.ECR_REPOSITORY }}:${{ inputs.SERVICE_NAME }}${IMAGE_TAG}"
+          echo "Setting image name to "
           echo $IMAGE_NAME
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
