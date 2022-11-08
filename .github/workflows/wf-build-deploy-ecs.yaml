@@ -52,6 +52,9 @@ on:
       FC_APPS_REDIS_NODE:
         description: "FC_APPS_REDIS_NODE"
         required: true
+      S3_CLOUDFRONT_URL:
+        description: "S3_CLOUDFRONT_URL"
+        required: false
 jobs:
   build-deploy:
     name: ${{ inputs.BUILD_NAME }}
@@ -91,6 +94,7 @@ jobs:
           DB_USER=${{ secrets.DB_USER }} \
           DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           REDIS_NODE=${{ secrets.FC_APPS_REDIS_NODE }} \
+          S3_CLOUDFRONT_URL=${{ secrets.S3_CLOUDFRONT_URL }} \
           GOOGLE_PROJECT=${{ secrets.GOOGLE_PROJECT }} ./scripts/deploy.sh
           
           docker build -t $ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:$SERVICE_NAME$IMAGE_TAG .
