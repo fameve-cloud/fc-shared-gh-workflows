@@ -98,6 +98,9 @@ jobs:
           DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
           REDIS_NODE=${{ secrets.FC_APPS_REDIS_NODE }} \
           S3_CLOUDFRONT_URL=${{ secrets.S3_CLOUDFRONT_URL }} \
+          AWS_SECRET_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+          AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY_ID }} \
+          AWS_REGION=${{ secrets.AWS_REGION }} \
           GOOGLE_PROJECT=${{ secrets.GOOGLE_PROJECT }} ./scripts/deploy.sh
           
           IMAGE_NAME=$ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:${{ inputs.SERVICE_NAME }}-$SHORT_SHA
