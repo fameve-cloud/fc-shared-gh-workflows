@@ -1,0 +1,39 @@
+name: Update Postman Collection
+
+on:
+  workflow_call:
+    inputs:
+      SWAGGER_URL:
+        type: string
+        required: true
+      COLLECTION_NAME:
+        type: string
+        required: true
+    secrets:
+      POSTMAN_API_KEY:
+        description: "Postman API Key"
+        required: true
+jobs:
+  build-deploy:
+    name: Updating ${{ inputs.COLLECTION_NAME }}
+    runs-on: ubuntu-latest
+    steps:
+       - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          ref: master
+          repository: fameve-cloud/swagger2postman
+          path: swagger2postman
+      - name: Update Collection
+        id: update-collection
+        run: |
+          cd swagger2postman
+          npm install
+          export POSTMAN_API_KEY=${{ secrets.POSTMAN_API_KEY }}
+          sed 's#COLLECTIONNAME#${{ inputs.COLLECTION_NAME }}#g;s#SWAGGER_URL#${{ inputs.SWAGGER_URL }}#g;' config/default-example.json > config/default.json
+          rm config/default-example.json
+          node index.js -s tes
+
+
+          
+    
