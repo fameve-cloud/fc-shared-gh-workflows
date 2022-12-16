@@ -80,9 +80,6 @@ jobs:
       - id: init
         name: Terraform Init
         run: terraform -chdir=.terraform init
-      - id: plan
-        name: Terraform Plan
-        run: TF_VAR_fc_preview_token=${{ secrets.TF_ORG_TOKEN }} TF_VAR_api_image=${{ steps.build-image.outputs.image }} terraform -chdir=.terraform plan
       - id: apply
         name: Terraform Apply
         run: TF_VAR_fc_preview_token=${{ secrets.TF_ORG_TOKEN }} TF_VAR_api_image=${{ steps.build-image.outputs.image }}  terraform -chdir=.terraform apply -auto-approve
