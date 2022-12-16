@@ -1,0 +1,103 @@
+name: Build and Deploy EKS using ARGOCD
+
+on:
+  workflow_call:
+    inputs:
+      SERVICE_NAME:
+        description: "ECS Service Name"
+        type: string
+        required: true
+      ECR_REPOSITORY:
+        description: "ECR_REPOSITORY"
+        type: string
+        required: true
+    secrets:
+      GOOGLE_PROJECT:
+        description: "GCP Project Id"
+        required: true
+      AWS_ACCESS_KEY_ID:
+        description: "AWS_ACCESS_KEY_ID"
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: "AWS_SECRET_ACCESS_KEY"
+        required: true
+      AWS_REGION:
+        description: "AWS_REGION"
+        required: true
+      FC_GH_ACTIONS:
+        description: "FC_GH_ACTIONS"
+        required: true
+      TF_ORG_TOKEN: 
+        description: "TF_ORG_TOKEN"
+        required: true
+      TF_API_TOKEN:
+        description: "TF_API_TOKEN"
+        required: true
+      K8S_CLUSTER:
+        description: "K8S_CLUSTER"
+        required: true
+jobs:
+  build-deploy:
+    name: ${{ inputs.BUILD_NAME }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR 2
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          
+          IMAGE_NAME=$ECR_REGISTRY/${{ inputs.ECR_REPOSITORY }}:${{ inputs.SERVICE_NAME }}$IMAGE_TAG
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+          echo "::set-output name=image::$IMAGE_NAME"
+      - run: sed 's/PAT/${{ secrets.FC_GH_ACTIONS }}/g' .terraform/main.tf > .terraform/main-sed.tf
+      - run: rm .terraform/main.tf
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.FC_GH_ACTIONS }}
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - id: init
+        name: Terraform Init
+        run: terraform -chdir=.terraform init
+      - id: plan
+        name: Terraform Plan
+        run: TF_VAR_fc_preview_token=${{ secrets.TF_ORG_TOKEN }} TF_VAR_api_image=${{ steps.build-image.outputs.image }} terraform -chdir=.terraform plan
+      - id: apply
+        name: Terraform Apply
+        run: TF_VAR_fc_preview_token=${{ secrets.TF_ORG_TOKEN }} TF_VAR_api_image=${{ steps.build-image.outputs.image }}  terraform -chdir=.terraform apply -auto-approve
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          path: ${{ inputs.SERVICE_NAME }}
+      - name: Checkout Workloads repo
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          token: ${{ secrets.FC_GH_ACTIONS }}
+          repository: fameve-cloud/fc-eks-cluster1-workloads
+          path: workloads
+      - name: Update Repo
+        id: update-repo
+        run: |
+          K8S_CLUSTER=${{secrets.K8S_CLUSTER}} CONTAINER_IMAGE=${{ steps.build-image.outputs.image }} APP_NAME=${{inputs.SERVICE_NAME}} bash ./${{ inputs.SERVICE_NAME }}/scripts/manifest.sh
