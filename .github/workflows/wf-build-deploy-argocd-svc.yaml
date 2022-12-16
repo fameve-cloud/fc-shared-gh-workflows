@@ -15,6 +15,9 @@ on:
       GOOGLE_PROJECT:
         description: "GCP Project Id"
         required: true
+      GOOGLE_SVC_ACCOUNT:
+        description: "GCP GOOGLE_SVC_ACCOUNT"
+        required: false
       AWS_ACCESS_KEY_ID:
         description: "AWS_ACCESS_KEY_ID"
         required: true
