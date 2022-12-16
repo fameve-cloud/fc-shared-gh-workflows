@@ -15,9 +15,6 @@ on:
       GOOGLE_PROJECT:
         description: "GCP Project Id"
         required: true
-      GOOGLE_SVC_ACCOUNT:
-        description: "GCP GOOGLE_SVC_ACCOUNT"
-        required: false
       AWS_ACCESS_KEY_ID:
         description: "AWS_ACCESS_KEY_ID"
         required: true
@@ -26,6 +23,15 @@ on:
         required: true
       AWS_REGION:
         description: "AWS_REGION"
+        required: true
+      DB_HOST:
+        description: "DB_HOST"
+        required: true
+      DB_USER:
+        description: "DB user"
+        required: true
+      DB_PASSWORD:
+        description: "DB Password"
         required: true
       FC_GH_ACTIONS:
         description: "FC_GH_ACTIONS"
@@ -36,9 +42,15 @@ on:
       TF_API_TOKEN:
         description: "TF_API_TOKEN"
         required: true
+      GOOGLE_SVC_ACCOUNT:
+        description: "GOOGLE_SVC_ACCOUNT"
+        required: true
+      FC_APPS_REDIS_NODE:
+        description: "FC_APPS_REDIS_NODE"
+        required: true
       S3_CLOUDFRONT_URL:
         description: "S3_CLOUDFRONT_URL"
-        required: true
+        required: false
       K8S_CLUSTER:
         description: "K8S_CLUSTER"
         required: true
