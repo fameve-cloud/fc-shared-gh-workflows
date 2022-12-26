@@ -156,21 +156,21 @@ jobs:
           path: fc-shared-build-scripts
       - name: Update Manifests
         id: update-manifest
-        if: ${{inputs.HAS_INGRESS}} != true && ${{inputs.USE_SHARED_MANIFEST}}
+        if: ${{!inputs.HAS_INGRESS && inputs.USE_SHARED_MANIFEST}}
         run: |
           K8S_CLUSTER=${{secrets.K8S_CLUSTER}} \
           CONTAINER_IMAGE=${{ steps.build-image.outputs.image }} \
           APP_NAME=${{inputs.SERVICE_NAME}} \
           TEAM_NAME=${{inputs.TEAM_NAME}} \
           ENV=${{inputs.ENV}} \
-          bash ./${{ inputs.SERVICE_NAME }}/scripts/manifest.sh
+          bash ./fc-shared-build-scripts/src//scripts/manifest.sh
       - name: Update Manifest with ingress
         id: update-manifest-with-ingress
-        if: ${{inputs.HAS_INGRESS}} && ${{inputs.USE_SHARED_MANIFEST}}
+        if: ${{inputs.HAS_INGRESS && inputs.USE_SHARED_MANIFEST}}
         run: |
           K8S_CLUSTER=${{secrets.K8S_CLUSTER}} \
           CONTAINER_IMAGE=${{ steps.build-image.outputs.image }} \
           APP_NAME=${{inputs.SERVICE_NAME}} \
           TEAM_NAME=${{inputs.TEAM_NAME}} \
           ENV=${{inputs.ENV}} \
-          bash ./${{ inputs.SERVICE_NAME }}/scripts/manifest.sh
+          bash ./fc-shared-build-scripts/src/scripts/manifest-with-ingress.sh
