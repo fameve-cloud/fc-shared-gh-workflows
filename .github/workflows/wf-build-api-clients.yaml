@@ -1,0 +1,70 @@
+name: Generate API Clients
+
+on:
+  workflow_call:
+    inputs:
+      GENERATE_CSHARP:
+        description: "Generate c# Client"
+        type: boolean
+        required: true
+      GENERATE_ANGULAR:
+        description: "GENERATE Angular Client"
+        type: boolean
+        required: true
+      GENERATE_AXIOS:
+        description: "GENERATE Axios Client"
+        type: boolean
+        required: true
+      PACKAGE_DIR:
+        description: "Package directory in shared repo"
+        type: string
+        required: true
+      API_PROJECT_DIR:
+        description: "Api Project Directory for swagger location"
+        type: string
+        required: true
+    secrets:
+      FC_GH_ACTIONS:
+        description: "FC_GH_ACTIONS"
+        required: true
+jobs:
+  publish-api:
+    name: Generate API Clients
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    steps:
+      - name: Checkout Client Api
+        uses: actions/checkout@v3
+        with:
+          path: api-src
+      - name: Checkout Shared Build scripts
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          token: ${{ secrets.FC_GH_ACTIONS }}
+          repository: fameve-cloud/fc-shared-build-scripts
+          path: fc-shared-build-scripts
+      - name: Checkout NET6 Api Client
+        uses: actions/checkout@v3
+        if: ${{ inputs.GENERATE_CSHARP }}
+        with:
+          ref: main
+          token: ${{ secrets.FC_GH_ACTIONS }}
+          repository: fameve-cloud/fc-typescript-packages
+          path: fc-typescript-packages
+      - name: Generate Angular Client
+        id: generate-angular-client
+        if: ${{ inputs.GENERATE_ANGULAR }}
+        run: |
+          API_SRC=api-src \
+          PACKAGE_DIR=${{ inputs.PACKAGE_DIR }} \
+          API_PROJECT_DIR=${{ inputs.API_PROJECT_DIR }} \
+          bash ./fc-shared-build-scripts/src/scripts/build-client-angular.sh
+      - name: Generate Axios Client
+        id: generate-axios-client
+        if: ${{ inputs.GENERATE_AXIOS }}
+        run: |
+          API_SRC=api-src \
+          PACKAGE_DIR=${{ inputs.PACKAGE_DIR }} \
+          API_PROJECT_DIR=${{ inputs.API_PROJECT_DIR }} \
+          bash ./fc-shared-build-scripts/src/scripts/build-client-axios.sh
