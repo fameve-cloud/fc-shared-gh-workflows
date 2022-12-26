@@ -59,7 +59,7 @@ jobs:
           repository: fameve-cloud/fc-typescript-packages
           path: fc-typescript-packages
       - name: Generate .NET Client
-        id: generate-angular-client
+        id: generate-net-client
         if: ${{ inputs.GENERATE_CSHARP }}
         run: |
           API_SRC=api-src \
