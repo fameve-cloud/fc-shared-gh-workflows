@@ -23,6 +23,14 @@ on:
         description: "Api Project Directory for swagger location"
         type: string
         required: true
+      PACKAGE_NAME:
+        description: "API Package Name for Netcore Clients"
+        type: string
+        required: false
+      API_NAME:
+        description: "APi Name for Netcore clients"
+        type: string
+        required: false
     secrets:
       FC_GH_ACTIONS:
         description: "FC_GH_ACTIONS"
@@ -43,14 +51,23 @@ jobs:
           token: ${{ secrets.FC_GH_ACTIONS }}
           repository: fameve-cloud/fc-shared-build-scripts
           path: fc-shared-build-scripts
-      - name: Checkout NET6 Api Client
+      - name: Checkout Packages Repo
         uses: actions/checkout@v3
-        if: ${{ inputs.GENERATE_CSHARP }}
         with:
           ref: main
           token: ${{ secrets.FC_GH_ACTIONS }}
           repository: fameve-cloud/fc-typescript-packages
           path: fc-typescript-packages
+      - name: Generate .NET Client
+        id: generate-angular-client
+        if: ${{ inputs.GENERATE_CSHARP }}
+        run: |
+          API_SRC=api-src \
+          PACKAGE_DIR=${{ inputs.PACKAGE_DIR }} \
+          API_PROJECT_DIR=${{ inputs.API_PROJECT_DIR }} \
+          PACKAGE_NAME=${{ inputs.PACKAGE_NAME }} \
+          API_NAME=${{ inputs.API_NAME }} \
+          bash ./fc-shared-build-scripts/src/scripts/build-client-netcore.sh
       - name: Generate Angular Client
         id: generate-angular-client
         if: ${{ inputs.GENERATE_ANGULAR }}
