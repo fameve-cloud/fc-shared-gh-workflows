@@ -15,10 +15,18 @@ on:
         description: "GENERATE Axios Client"
         type: boolean
         required: true
-      PACKAGE_DIR:
+      AXIOS_PACKAGE_DIR:
         description: "Package directory in shared repo"
         type: string
-        required: true
+        required: false
+      ANGULAR_PACKAGE_DIR:
+        description: "Package directory in shared repo"
+        type: string
+        required: false
+      NET_PACKAGE_DIR:
+        description: "Package directory in shared repo"
+        type: string
+        required: false
       API_PROJECT_DIR:
         description: "Api Project Directory for swagger location"
         type: string
@@ -63,7 +71,7 @@ jobs:
         if: ${{ inputs.GENERATE_CSHARP }}
         run: |
           API_SRC=api-src \
-          PACKAGE_DIR=${{ inputs.PACKAGE_DIR }} \
+          PACKAGE_DIR=${{ inputs.NET_PACKAGE_DIR }} \
           API_PROJECT_DIR=${{ inputs.API_PROJECT_DIR }} \
           PACKAGE_NAME=${{ inputs.PACKAGE_NAME }} \
           API_NAME=${{ inputs.API_NAME }} \
@@ -73,7 +81,7 @@ jobs:
         if: ${{ inputs.GENERATE_ANGULAR }}
         run: |
           API_SRC=api-src \
-          PACKAGE_DIR=${{ inputs.PACKAGE_DIR }} \
+          PACKAGE_DIR=${{ inputs.ANGULAR_PACKAGE_DIR }} \
           API_PROJECT_DIR=${{ inputs.API_PROJECT_DIR }} \
           bash ./fc-shared-build-scripts/src/scripts/build-client-angular.sh
       - name: Generate Axios Client
@@ -81,6 +89,6 @@ jobs:
         if: ${{ inputs.GENERATE_AXIOS }}
         run: |
           API_SRC=api-src \
-          PACKAGE_DIR=${{ inputs.PACKAGE_DIR }} \
+          PACKAGE_DIR=${{ inputs.AXIOS_PACKAGE_DIR }} \
           API_PROJECT_DIR=${{ inputs.API_PROJECT_DIR }} \
           bash ./fc-shared-build-scripts/src/scripts/build-client-axios.sh
