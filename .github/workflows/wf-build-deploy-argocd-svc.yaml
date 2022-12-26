@@ -15,6 +15,18 @@ on:
         description: "Has Ingress"
         type: boolean
         required: true
+      TEAM_NAME:
+        description: "team name"
+        type: string
+        required: false
+      ENV:
+        description: "ENV"
+        type: string
+        required: false
+      USE_SHARED_MANIFEST:
+        description: "Use shared manifest"
+        type: boolean
+        required: false
     secrets:
       GOOGLE_PROJECT:
         description: "GCP Project Id"
@@ -135,19 +147,30 @@ jobs:
           token: ${{ secrets.FC_GH_ACTIONS }}
           repository: fameve-cloud/fc-eks-cluster1-workloads
           path: workloads
+      - name: Checkout Shared Build scripts
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          token: ${{ secrets.FC_GH_ACTIONS }}
+          repository: fameve-cloud/fc-shared-build-scripts
+          path: fc-shared-build-scripts
       - name: Update Manifests
         id: update-manifest
-        if: ${{inputs.HAS_INGRESS}} != true
+        if: ${{inputs.HAS_INGRESS}} != true && ${{inputs.USE_SHARED_MANIFEST}}
         run: |
           K8S_CLUSTER=${{secrets.K8S_CLUSTER}} \
           CONTAINER_IMAGE=${{ steps.build-image.outputs.image }} \
           APP_NAME=${{inputs.SERVICE_NAME}} \
+          TEAM_NAME=${{inputs.TEAM_NAME}} \
+          ENV=${{inputs.ENV}} \
           bash ./${{ inputs.SERVICE_NAME }}/scripts/manifest.sh
       - name: Update Manifest with ingress
         id: update-manifest-with-ingress
-        if: ${{inputs.HAS_INGRESS}}
+        if: ${{inputs.HAS_INGRESS}} && ${{inputs.USE_SHARED_MANIFEST}}
         run: |
           K8S_CLUSTER=${{secrets.K8S_CLUSTER}} \
           CONTAINER_IMAGE=${{ steps.build-image.outputs.image }} \
           APP_NAME=${{inputs.SERVICE_NAME}} \
+          TEAM_NAME=${{inputs.TEAM_NAME}} \
+          ENV=${{inputs.ENV}} \
           bash ./${{ inputs.SERVICE_NAME }}/scripts/manifest.sh
