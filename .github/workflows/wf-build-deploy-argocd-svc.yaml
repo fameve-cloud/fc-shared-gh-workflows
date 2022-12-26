@@ -11,6 +11,10 @@ on:
         description: "ECR_REPOSITORY"
         type: string
         required: true
+      HAS_INGRESS:
+        description: "Has Ingress"
+        type: boolean
+        required: true
     secrets:
       GOOGLE_PROJECT:
         description: "GCP Project Id"
@@ -131,7 +135,19 @@ jobs:
           token: ${{ secrets.FC_GH_ACTIONS }}
           repository: fameve-cloud/fc-eks-cluster1-workloads
           path: workloads
-      - name: Update Repo
-        id: update-repo
+      - name: Update Manifests
+        id: update-manifest
+        if: ${{inputs.HAS_INGRESS}} != true
         run: |
-          K8S_CLUSTER=${{secrets.K8S_CLUSTER}} CONTAINER_IMAGE=${{ steps.build-image.outputs.image }} APP_NAME=${{inputs.SERVICE_NAME}} bash ./${{ inputs.SERVICE_NAME }}/scripts/manifest.sh
+          K8S_CLUSTER=${{secrets.K8S_CLUSTER}} \
+          CONTAINER_IMAGE=${{ steps.build-image.outputs.image }} \
+          APP_NAME=${{inputs.SERVICE_NAME}} \
+          bash ./${{ inputs.SERVICE_NAME }}/scripts/manifest.sh
+      - name: Update Manifest with ingress
+        id: update-manifest-with-ingress
+        if: ${{inputs.HAS_INGRESS}}
+        run: |
+          K8S_CLUSTER=${{secrets.K8S_CLUSTER}} \
+          CONTAINER_IMAGE=${{ steps.build-image.outputs.image }} \
+          APP_NAME=${{inputs.SERVICE_NAME}} \
+          bash ./${{ inputs.SERVICE_NAME }}/scripts/manifest.sh
