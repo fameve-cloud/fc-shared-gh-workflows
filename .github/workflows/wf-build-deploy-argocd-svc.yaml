@@ -126,8 +126,11 @@ jobs:
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
           echo "::set-output name=image::$IMAGE_NAME"
-      - run: sed 's/PAT/${{ secrets.FC_GH_ACTIONS }}/g' .terraform/main.tf > .terraform/main-sed.tf
-      - run: rm .terraform/main.tf
+      - name: Prep terraform
+        if: ${{inputs.HAS_TERRAFORM}}
+        run: |
+          sed 's/PAT/${{ secrets.FC_GH_ACTIONS }}/g' .terraform/main.tf > .terraform/main-sed.tf
+          rm .terraform/main.tf
       - name: Setup Terraform
         if: ${{inputs.HAS_TERRAFORM}}
         uses: hashicorp/setup-terraform@v2
