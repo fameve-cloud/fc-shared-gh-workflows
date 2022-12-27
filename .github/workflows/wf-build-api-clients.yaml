@@ -39,6 +39,10 @@ on:
         description: "APi Name for Netcore clients"
         type: string
         required: false
+      CLIENT_REPO:
+        description: "Client repo for .NET projects"
+        type: string
+        required: false
     secrets:
       FC_GH_ACTIONS:
         description: "FC_GH_ACTIONS"
@@ -66,6 +70,13 @@ jobs:
           token: ${{ secrets.FC_GH_ACTIONS }}
           repository: fameve-cloud/fc-typescript-packages
           path: fc-typescript-packages
+      - name: Checkout Client Repo
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          token: ${{ secrets.FC_GH_ACTIONS }}
+          repository: ${{ inputs.CLIENT_REPO }}
+          path: client-repo
       - name: Generate .NET Client
         id: generate-net-client
         if: ${{ inputs.GENERATE_CSHARP }}
@@ -75,6 +86,7 @@ jobs:
           API_PROJECT_DIR=${{ inputs.API_PROJECT_DIR }} \
           PACKAGE_NAME=${{ inputs.PACKAGE_NAME }} \
           API_NAME=${{ inputs.API_NAME }} \
+          CLIENT_REPO=client-repo \
           bash ./fc-shared-build-scripts/src/scripts/build-client-netcore.sh
       - name: Generate Angular Client
         id: generate-angular-client
