@@ -27,6 +27,10 @@ on:
         description: "Use shared manifest"
         type: boolean
         required: false
+      HAS_TERRAFORM:
+        description: "has Terraform"
+        type: boolean
+        required: false
     secrets:
       GOOGLE_PROJECT:
         description: "GCP Project Id"
@@ -125,6 +129,7 @@ jobs:
       - run: sed 's/PAT/${{ secrets.FC_GH_ACTIONS }}/g' .terraform/main.tf > .terraform/main-sed.tf
       - run: rm .terraform/main.tf
       - name: Setup Terraform
+        if: ${{inputs.HAS_TERRAFORM}}
         uses: hashicorp/setup-terraform@v2
         env:
           GITHUB_TOKEN: ${{ secrets.FC_GH_ACTIONS }}
@@ -132,9 +137,11 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
       - id: init
         name: Terraform Init
+        if: ${{inputs.HAS_TERRAFORM}}
         run: terraform -chdir=.terraform init
       - id: apply
         name: Terraform Apply
+        if: ${{inputs.HAS_TERRAFORM}}
         run: TF_VAR_fc_preview_token=${{ secrets.TF_ORG_TOKEN }} TF_VAR_api_image=${{ steps.build-image.outputs.image }}  terraform -chdir=.terraform apply -auto-approve
       - name: Checkout Repo
         uses: actions/checkout@v3
